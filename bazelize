@@ -23,6 +23,11 @@
 
 here=`dirname $0`
 
+if [ ! -e "libdeps.txt" ]; then
+    echo "Need a libdeps.txt to generate dependencies.yaml" >&2
+    exit 1
+fi
+
 function ensure_file {
     d=`dirname "$1"`
     if [ ! -e "$1" ]; then
@@ -118,3 +123,5 @@ find . -name '.git' -prune -o -name '*.scala' -exec dirname {} \; | sort | uniq 
     while read -r dir; do
         (cd $dir; write_buildfile `basename $dir`);
     done
+
+$here/../bazel-deps/gen_maven_deps.sh generate -r `pwd` -s 3rdparty/workspace.bzl -d dependencies.yaml
