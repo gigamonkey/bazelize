@@ -1,0 +1,47 @@
+#!/usr/bin/env perl
+
+#
+# Take an input file consisting of lines like:
+#
+#  "com.typesafe.akka" %% "akka-cluster" % "2.4.17"
+#
+# and generate a dependencies.yaml file.
+
+use warnings;
+use strict;
+
+my %libs;
+
+sub emit_package {
+    my ($pkg) = @_;
+    print "  $pkg:\n";
+    foreach my $lib (@{$libs{$pkg}}) {
+        emit_lib($lib->{'name'}, $lib->{'version'}, $lib->{'lang'});
+    }
+    print "\n";
+}
+
+sub emit_lib {
+    my ($name, $version, $lang) = @_;
+    print "    $name:\n";
+    print "      lang: $lang\n";
+    print "      version: \"$version\"\n";
+}
+
+
+while (<>) {
+    /^\#/ and next;
+    if (/"(.*?)"\s+(%{1,2})\s+"(.*?)"\s+%\s+"(.*?)"/) {
+        push @{$libs{$1}}, {
+            'name' => $3,
+            'version' => $4,
+            'lang' => $2 eq '%%' ? 'scala' : 'scala/unmangled'
+        };
+    }
+}
+
+foreach my $pkg (sort keys %libs) {
+    emit_package($pkg);
+}
+
+__END__
