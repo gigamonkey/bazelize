@@ -1,3 +1,12 @@
 #!/bin/bash
 
-bazel query "attr('exports', '$1', '//3rdparty/...')"
+#
+# Query Bazel to find a target that exports a given jar. Because the
+# target names in exports are not literal jar names just pass enough
+# of the jar name to be identifying.
+#
+
+
+pat=`echo "$1" | tr '-' '_'`
+
+bazel query "attr('exports', '$pat', '//3rdparty/...')" | sort

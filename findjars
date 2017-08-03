@@ -1,3 +1,15 @@
 #!/bin/bash
 
-grep "$1" /tmp/alljars.txt | cut -f2 | sort | uniq
+#
+# Search the index created by dumpjars to figure out what jars contain
+# a given class. E.g. findjars com.foo.Baz will find jars containing a
+# path com/foo/Baz*. Then use findtarget to figure out what Bazel
+# targets depend on a given jar.
+#
+
+output_base=$(bazel info output_base)
+index=/tmp/$(basename $output_base).index
+
+pat=`echo "$1" | tr '.' '/'`
+
+grep "$pat" $index | cut -f2 | sort | uniq
