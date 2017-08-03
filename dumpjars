@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#
+# Dump an index of all the jars bazel has downloaded so we can figure
+# out where dependencies live. Use findjars to search this index
+# conveniently.
+#
+
+output_base=$(bazel info output_base)
+index=/tmp/$(basename $output_base).index
+
+find $output_base/external -name '*.jar' | \
+    while read -r jar; do
+        jar tf $jar | \
+            while read -r file; do
+                echo -e "$file\t$jar"
+            done
+    done > $index

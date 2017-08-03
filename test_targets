@@ -1,0 +1,9 @@
+#!/bin/bash
+
+bazel query '//... - //3rdparty/...' | while read -r target; do
+    if (bazel build $target &> /dev/null); then
+        echo "OK $target"
+    else
+        echo "$target"
+    fi
+done
